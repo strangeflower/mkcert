@@ -2,20 +2,20 @@
 
 set -e
 
-ROOT_CERT="example-ca"
+ROOT_CERT="${ROOT_CERT:=local-ca}"
 
-CERT_NAME="service"
-CERT_BITS="2048"
-CERT_EXP="3650"
+CERT_NAME="${CERT_NAME:=server}"
+CERT_BITS="${CERT_BITS:=2048}"
+CERT_DAYS="${CERT_DAYS:=365}"
 
-CERT_EMAIL="example@mail.org"
-CERT_COUNTRY="NL"
-CERT_STATE="Utrecht"
-CERT_CITY="Utrecht"
-CERT_ORG="Company"
+CERT_EMAIL="${CERT_EMAIL:=admin@local.email}"
+CERT_COUNTRY="${CERT_COUNTRY:=NL}"
+CERT_STATE="${CERT_STATE:=Utrecht}"
+CERT_CITY="${CERT_CITY:=Utrecht}"
+CERT_ORG="${CERT_ORG:=Organisation}"
 
-ALT_DNS="service.lan"
-ALT_IP1="192.168.0.1"
+ALT_DNS="${ALT_DNS:=localhost}"
+ALT_IP="${ALT_IP:=127.0.0.1}"
 
 # -----------------------------------------------------------------------------
 # CREATE OPENSSL CONFIGURATION
@@ -45,7 +45,7 @@ authorityKeyIdentifier = keyid,issuer:always
 
 [ alt_names ]
 DNS.1 = ${ALT_DNS}
-IP.1 = ${ALT_IP1}
+IP.1 = ${ALT_IP}
 EOF
 
 # -----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ openssl req -new -sha256 -nodes \
 openssl req -text -noout -verify -in ${CERT_NAME}.csr
 
 # Sign the certificate
-openssl x509 -req -sha256 -days ${CERT_EXP} \
+openssl x509 -req -sha256 -days ${CERT_DAYS} \
 	-CA ${ROOT_CERT}.crt -CAkey ${ROOT_CERT}.key -CAcreateserial \
 	-extensions server_ext -extfile ${CERT_NAME}.cnf \
 	-in ${CERT_NAME}.csr \
